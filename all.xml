@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="All Tests">
+    <test name="Public Tests">
+        <packages>
+            <package name="io.lazycoder.tests.noauth"></package>
+        </packages>
+    </test>
+    <parameter name="baseurl" value="http://lazycoder.io"></parameter>
+    <parameter name="admin_password" value="strongpassword"></parameter>
+</suite> <!-- Custom suite -->
