@@ -1,5 +1,7 @@
 # Fluent Java FTW
 
+[![Join the chat at https://gitter.im/lazycoderio/FluentJava](https://badges.gitter.im/lazycoderio/FluentJava.svg)](https://gitter.im/lazycoderio/FluentJava?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 All of the goodness lives in the basePage and baseTest classes.
 
 Check out the project f=plan for the upcoming features that will be added to this framework.
