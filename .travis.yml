@@ -1,0 +1,20 @@
+os: osx
+language: java
+sudo: false
+
+before_install:
+ - chmod +x mac_install_browsers.sh
+ 
+script:
+- ./mac_install_browsers.sh
+- mvn clean test  -Dsurefire.suiteXmlFiles=all.xml
+
+cache:
+  directories:
+  - $HOME/.m2/repository
+
+
+after_success:
+- mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package
+- bash <(curl -s https://codecov.io/bash)
+
