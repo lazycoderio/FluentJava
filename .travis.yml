@@ -2,7 +2,9 @@ os: osx
 language: java
 sudo: false
 
-script:
+before_install:
+ - chmod +x mac_install_browsers.sh
+ 
 script:
 - ./mac_install_browsers.sh
 - mvn clean test  -Dsurefire.suiteXmlFiles=all.xml
