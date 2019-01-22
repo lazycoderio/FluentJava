@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <allure.version>1.5.2</allure.version>
+        <allure.version>1.5.4</allure.version>
         <aspectj.version>1.8.10</aspectj.version>
     </properties>
     <repositories>
