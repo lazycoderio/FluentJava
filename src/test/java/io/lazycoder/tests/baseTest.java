@@ -1,19 +1,26 @@
 package io.lazycoder.tests;
 
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.remote.MobileCapabilityType;
 import io.lazycoder.Config;
+import io.lazycoder.helpers.User;
 import io.lazycoder.pages.noauth.homePage;
+import io.qameta.allure.Attachment;
+import io.qameta.allure.Step;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
-import ru.yandex.qatools.allure.annotations.Attachment;
-import ru.yandex.qatools.allure.annotations.Parameter;
-import ru.yandex.qatools.allure.annotations.Step;
 
+
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +38,7 @@ public class baseTest <Test extends baseTest<Test>> {
     protected static HashMap<String, Object> store;
     private Config config;
     public homePage homepage;
+    private User user;
 
     public baseTest(){
         this.store = new HashMap<String, Object>() ;
@@ -41,19 +49,26 @@ public class baseTest <Test extends baseTest<Test>> {
     /***
      * This is the test setup that read-ins the properties that are in the suite XML files and attaches them to the properties.
      * The @Parameters is from TestNG and it pulls in the parameters that are defined in the suite XML files.
-     * @param base The
-     * @param pass
+
      */
-    @Parameters({"baseurl", "admin_password"})
+//    @Parameters({"baseurl", "admin_password"})
     @BeforeMethod
-    public void setup(@Parameter String base, @Parameter String pass)
-    {
-        _properties.put("baseurl", base);
-        _properties.put("admin_password", pass);
+    public void setup() throws MalformedURLException {
+//        _properties.put("baseurl", base);
+//        _properties.put("admin_password", pass);
+        if(_properties.get("Browser").equals("Mobile Safari")){
+            DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
+            desiredCapabilities.setCapability(MobileCapabilityType.BROWSER_NAME, "Safari");
+            URL url = new URL("http://127.0.0.1:4723/wd/hub");
+            _driver = new AppiumDriver(url, desiredCapabilities);
+        }
+        else{
+            _driver = new ChromeDriver();
+            _driver.manage().window().maximize();
+        }
         saveToReport(_properties.toString());
         saveToReport("new driver");
-        _driver = new ChromeDriver();
-        _driver.manage().window().maximize();
+
         this.homepage = new homePage();
     }
 
@@ -62,8 +77,11 @@ public class baseTest <Test extends baseTest<Test>> {
      * Closing the test and taking the final screenshot
      */
     @AfterMethod
-    public void teardown()
+    public void teardown(ITestResult result)
     {
+        String testname = result.getMethod().getMethodName();
+
+
         saveSceenShot("Test Complete");
         saveToReport("closing driver");
         _driver.quit();

@@ -1,12 +1,13 @@
 package io.lazycoder.pages;
 
+import io.qameta.allure.Attachment;
+import io.qameta.allure.Step;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import ru.yandex.qatools.allure.annotations.Attachment;
-import ru.yandex.qatools.allure.annotations.Step;
+
 import ru.yandex.qatools.ashot.AShot;
 import ru.yandex.qatools.ashot.Screenshot;
 import ru.yandex.qatools.ashot.cropper.indent.IndentCropper;
@@ -17,6 +18,7 @@ import ru.yandex.qatools.htmlelements.loader.decorator.HtmlElementLocatorFactory
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import static io.lazycoder.tests.baseTest.*;
 import static ru.yandex.qatools.ashot.cropper.indent.IndentFilerFactory.blur;
@@ -24,7 +26,7 @@ import static ru.yandex.qatools.ashot.cropper.indent.IndentFilerFactory.blur;
 /**
  * Created by Andrew Krug on 1/16/2017.
  */
-public class basePage <P extends basePage<P>>{
+public abstract class basePage <P extends basePage<P>>{
     protected HashMap<String, Object> store;
     protected Properties _properties;
     protected WebDriver _driver;
@@ -49,6 +51,12 @@ public class basePage <P extends basePage<P>>{
 
     }
 
+    public basePage(){
+        this._driver = getDriver();
+        this._properties = getProperties();
+        this.store = getStore();
+        saveToReport("Current URL: " + _driver.getCurrentUrl());
+    }
     /**
      * specific method that navigates to this page and leaves you in the same class for method chaining
      * @return the class that is called from
@@ -101,7 +109,7 @@ public class basePage <P extends basePage<P>>{
      * Method that actually takes a screenshot.
      * @return the screenshot as a Byte array
      */
-    @Attachment("Page Screenshot")
+    @Attachment(value="Page Screenshot", type="image/png")
     public byte[] makeScreenshot() {
         System.out.println("getting screenshot");
         return ((TakesScreenshot) _driver).getScreenshotAs(OutputType.BYTES);
@@ -175,6 +183,11 @@ public class basePage <P extends basePage<P>>{
         return (P)this;
     }
 
+//    public P clickOn(By locator, int timeout){
+//        find(locator, timeout).click();
+//        return (P)this;
+//    }
+
     /**
      * wrapper for explicit wait and click using the locator instead
      * @param locator locator to use
@@ -183,12 +196,28 @@ public class basePage <P extends basePage<P>>{
      */
     @Step("Click on {0}")
     public P clickOn(By locator, int timeout){
-        new WebDriverWait(_driver, 5).until(ExpectedConditions.elementToBeClickable(_driver.findElement(locator)));
+        new WebDriverWait(_driver, timeout).until(ExpectedConditions.elementToBeClickable(_driver.findElement(locator)));
         WebElement element = _driver.findElement(locator);
         saveCroppedBlurredSS(element);
         element.click();
         return (P)this;
     }
+
+    public WebElement find(By locator){
+        return _driver.findElement(locator);
+    }
+
+    public WebElement find(By locator, int timeout){
+        WebDriverWait wait = new WebDriverWait(_driver, timeout);
+        wait.until(ExpectedConditions.elementToBeClickable(locator));
+        return _driver.findElement(locator);
+    }
+
+    public P type(String text, By locator){
+        find(locator).sendKeys(text);
+        return (P)this;
+    }
+
 
     /**
      * Saves the value to the key in the store, used to quickly retrieve the value for later assertions
@@ -241,5 +270,27 @@ public class basePage <P extends basePage<P>>{
         _driver.navigate().refresh();
         saveSceenShot();
         return (P)this;
+    }
+
+    protected boolean isElementVisibleNow(By locator, int timeout) {
+        _driver.manage().timeouts().
+                implicitlyWait(0, TimeUnit.SECONDS);
+
+        boolean result = false;
+        WebDriverWait wait = new WebDriverWait(_driver, timeout);
+        wait.until(ExpectedConditions.
+                    visibilityOfElementLocated(locator));
+
+
+            _driver.manage().timeouts().
+                    implicitlyWait(10, TimeUnit.SECONDS);
+
+        return true;
+    }
+
+    public boolean isMobile(){
+        if(_driver.manage().window().getSize().width <= 800)
+            return true;
+        else return false;
     }
 }

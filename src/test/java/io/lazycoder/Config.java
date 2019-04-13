@@ -1,6 +1,8 @@
 package io.lazycoder;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -44,6 +46,10 @@ public class Config {
     public void saveParamChanges() {
         try {
             File f = new File("target/allure-results/environment.properties");
+            if(!f.exists()){
+                Files.createDirectories(Paths.get("target/allure-results/environment.properties").getParent());
+                f.createNewFile();
+            }
             OutputStream out = new FileOutputStream( f );
             prop.store(out, "This is an optional header comment string");
         }
